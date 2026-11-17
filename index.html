@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Red Fox — Portale Ordini 2026/27</title>
+<meta name="description" content="Portale ordini Red Fox Italia (Dümmen Orange) — stagione 2026/27">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="logo"><span class="fox">RF</span><span>RED FOX ITALIA<small>Portale ordini · Dümmen Orange</small></span></div>
+    <span class="stagione" id="stagione">Stagione 2026/27</span>
+    <div class="topbar-spacer"></div>
+    <div class="agente">Agente: <b id="agente">MALLAMACI</b></div>
+  </div>
+</header>
+
+<section class="cliente-box">
+  <div class="cliente-in">
+    <span class="cliente-tit">Cliente</span>
+    <span class="cliente-val vuoto" id="hCliente">Nessun cliente impostato</span>
+    <span class="agente" id="hCliente2"></span>
+    <div class="topbar-spacer"></div>
+    <button class="btn-link" onclick="document.getElementById('btnOrdine').click()">Imposta cliente e dati ordine →</button>
+  </div>
+</section>
+
+<main class="wrap">
+  <aside class="side">
+    <div class="card">
+      <input id="cerca" class="cerca" type="search" placeholder="Cerca varietà o codice…" autocomplete="off">
+      <ul class="cat-list" id="catList"></ul>
+      <div class="filtri">
+        <label><input type="checkbox" id="soloNew"> Solo novità</label>
+        <button class="btn-link" id="btnPulisci" style="text-align:left">Azzera filtri</button>
+      </div>
+    </div>
+  </aside>
+
+  <section>
+    <div class="card weekbox">
+      <h2>1. Scegli la settimana di consegna</h2>
+      <p class="help">Le settimane in verde scuro sono quelle consigliate per questa stagione. Puoi ordinare su più settimane: cambia settimana e inserisci le quantità.</p>
+      <div class="weeks" id="weeks"></div>
+    </div>
+
+    <div class="testa-sez">
+      <h1 id="titoloCat">Tutte le categorie</h1>
+      <span class="sub" id="subCat"></span>
+    </div>
+
+    <div id="prodotti"></div>
+  </section>
+</main>
+
+<div class="barra">
+  <div class="barra-in">
+    <div class="dati">
+      <span>Righe <b id="bRighe">0</b></span>
+      <span>Contenitori <b id="bCont">0</b></span>
+      <span>Piante <b id="bPiante">0</b></span>
+      <span>Valore <b id="bVal">0,00 €</b></span>
+    </div>
+    <div class="topbar-spacer"></div>
+    <button class="btn primario" id="btnOrdine" disabled>Rivedi ordine</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Riepilogo ordine">
+    <header>
+      <h3>Riepilogo ordine</h3>
+      <div class="topbar-spacer"></div>
+      <button class="btn-link" id="btnChiudi" aria-label="Chiudi">✕</button>
+    </header>
+    <div class="corpo">
+      <div id="ordineCorpo"></div>
+
+      <h3 style="margin:22px 0 6px;font-size:15px">2. Dati cliente</h3>
+      <div class="campi" id="datiCliente">
+        <label>Codice cliente<input id="clCliente" placeholder="es. 1234"></label>
+        <label>Ragione sociale *<input id="clNome" placeholder="Nome cliente"></label>
+        <label>Destinatario<input id="clDest" placeholder="Se diverso"></label>
+        <label>Indirizzo<input id="clInd" placeholder="Via, n°, CAP, città"></label>
+        <label>Referente<input id="clRef" placeholder="Persona di riferimento"></label>
+        <label>Telefono<input id="clTel" placeholder="Cellulare"></label>
+        <label>Email<input id="clMail" type="email" placeholder="email@cliente.it"></label>
+        <label>Prezzo per 1.000 + Lic. + Suppl.<input id="prezzo" value="0,23"></label>
+        <label style="grid-column:1/-1">Note per l'ordine<input id="clNote" placeholder="es. consegna, omaggi, richieste particolari"></label>
+      </div>
+      <div id="statoInvio"></div>
+    </div>
+    <footer>
+      <button class="btn pericolo" id="btnSvuota">Svuota</button>
+      <button class="btn ghost" id="btnStampa">Stampa</button>
+      <button class="btn ghost" id="btnExcel">Scarica Excel</button>
+      <button class="btn ghost" id="btnMailto" style="display:none">Apri email</button>
+      <button class="btn primario" id="btnInvio">Invia ordine</button>
+    </footer>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
