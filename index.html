@@ -7,7 +7,7 @@
 <meta name="description" content="Portale ordini Red Fox Italia (Dümmen Orange) — stagione 2026/27">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 
@@ -45,6 +45,7 @@
   <section>
     <div class="card weekbox">
       <h2>1. Scegli la settimana di consegna</h2>
+      <div class="week-now">Settimana selezionata: <b id="weekNow">—</b></div>
       <p class="help">Le settimane in verde scuro sono quelle consigliate per questa stagione. Puoi ordinare su più settimane: cambia settimana e inserisci le quantità.</p>
       <div class="weeks" id="weeks"></div>
     </div>
@@ -83,6 +84,7 @@
 
       <h3 style="margin:22px 0 6px;font-size:15px">2. Dati cliente</h3>
       <div class="campi" id="datiCliente">
+        <label style="grid-column:1/-1">Cerca cliente (inizia a digitare)<input id="clSearch" list="clientiList" placeholder="Nome o codice cliente…" autocomplete="off"><datalist id="clientiList"></datalist></label>
         <label>Codice cliente<input id="clCliente" placeholder="es. 1234"></label>
         <label>Ragione sociale *<input id="clNome" placeholder="Nome cliente"></label>
         <label>Destinatario<input id="clDest" placeholder="Se diverso"></label>
@@ -106,7 +108,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="data.js?v=12"></script>
-<script src="app.js?v=12"></script>
+<script src="clienti.js?v=1"></script>
+<script src="data.js?v=13"></script>
+<script src="app.js?v=13"></script>
 </body>
 </html>

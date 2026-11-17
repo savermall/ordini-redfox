@@ -51,7 +51,7 @@ input,select,textarea{font:inherit;color:inherit}
 .filtri label{display:flex;align-items:center;gap:8px;color:#374151}
 
 /* ---------- settimane ---------- */
-.weekbox{padding:16px;margin-bottom:18px}
+.weekbox{padding:16px;margin-bottom:18px;position:sticky;top:56px;z-index:35;box-shadow:0 10px 24px -18px rgba(0,0,0,.45)}
 .weekbox h2{margin:0 0 4px;font-size:15px}
 .weekbox p.help{margin:0 0 12px;color:var(--grigio);font-size:12.5px}
 .weeks{display:flex;flex-wrap:wrap;gap:7px}
@@ -147,3 +147,13 @@ table.righe .num{text-align:right;font-variant-numeric:tabular-nums}
 .btn.primario{background:var(--verde)}
 .week.consigliata{background:#111827;border-color:#111827}
 .badge.new{background:var(--verde);color:#fff}
+
+/* ---------- settimana sticky + stato attivo ---------- */
+@media(max-width:980px){ .weekbox{top:52px} }
+.week-now{display:inline-block;margin:0 0 10px;font-size:12.5px;color:var(--grigio);background:#f3f4f6;border-radius:999px;padding:4px 12px}
+.week-now b{color:var(--verde);font-size:14px}
+.week.attiva{background:var(--verde);border-color:var(--verde);color:#fff;font-weight:800;box-shadow:0 6px 16px -6px rgba(255,80,0,.6);transform:translateY(-1px)}
+.week.consigliata.attiva{background:var(--verde)}
+.week.attiva:after{content:" ✓";font-weight:700}
+/* ---------- autocomplete clienti ---------- */
+#clSearch{font-weight:600}

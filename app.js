@@ -108,6 +108,7 @@ function totali(){
   return {n:r.length, cont:cont, piante:piante, valore:piante/1000*p};
 }
 function aggiornaBarra(){
+  var wn=document.getElementById('weekNow'); if(wn) wn.textContent=state.settimana;
   var t=totali();
   $('#bRighe').textContent=t.n; $('#bCont').textContent=int(t.cont);
   $('#bPiante').textContent=int(t.piante); $('#bVal').textContent=euro(t.valore);
@@ -342,10 +343,26 @@ function collegaEventi(){
   });
 }
 
+function initClienti(){
+  var dl=document.getElementById('clientiList'); if(!dl||!window.CLIENTI) return;
+  dl.innerHTML = window.CLIENTI.map(function(c){ return '<option value="'+esc(c.nome)+'">'+esc(c.codice)+' · '+esc(c.nome)+'</option>'; }).join('');
+  var inp=document.getElementById('clSearch');
+  if(inp) inp.addEventListener('change',function(){
+    var v=inp.value.trim(); if(!v) return;
+    var hit=window.CLIENTI.filter(function(c){ return c.nome===v || c.codice===v; })[0];
+    if(!hit){ var q=v.toLowerCase(); hit=window.CLIENTI.filter(function(c){ return c.nome.toLowerCase().indexOf(q)>=0; })[0]; }
+    if(hit){
+      document.getElementById('clCliente').value=hit.codice;
+      document.getElementById('clCliente').dispatchEvent(new Event('input',{bubbles:true}));
+      document.getElementById('clNome').value=hit.nome;
+      document.getElementById('clNome').dispatchEvent(new Event('input',{bubbles:true}));
+    }
+  });
+}
 function init(){
   $('#stagione').textContent='Stagione '+C.stagione;
   $('#agente').textContent=C.agente;
-  renderCategorie(); renderSettimane(); renderProdotti(); aggiornaBarra(); aggiornaTestata(); collegaEventi();
+  renderCategorie(); renderSettimane(); renderProdotti(); aggiornaBarra(); aggiornaTestata(); collegaEventi(); initClienti();
 }
 document.addEventListener('DOMContentLoaded',init);
 })();
