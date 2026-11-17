@@ -214,7 +214,7 @@ function inviaOrdine(){
   var t=totali();
   if(!t.n) return;
   if(!state.cliente.nome){ mostraStato('err','Inserisci almeno il nome del cliente prima di inviare.'); return; }
-  var btn=$('#btnInvia'); btn.disabled=true; btn.textContent='Invio…';
+  var btn=$('#btnInvio'); btn.disabled=true; btn.textContent='Invio…';
   mostraStato('info','Invio in corso…');
   var fd=new FormData();
   fd.append('_subject','Ordine Red Fox — '+state.cliente.nome+' — '+new Date().toLocaleDateString('it-IT'));
