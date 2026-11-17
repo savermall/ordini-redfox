@@ -95,17 +95,23 @@ function setRiga(codice, qta, cont){
   var q=Math.max(0,Math.floor(num(qta)));
   if(!q){ delete state.cart[key]; }
   else { var prev=state.cart[key]||{};
-    state.cart[key]={codice:codice, sett:state.settimana, qta:q, cont:cont||prev.cont||'T04', descrizione:a.descrizione, serie:a.serie, categoria:a.categoria};
+    var pr = prev.prezzo;
+    if(pr===undefined){ pr = prezzoPer(codice); }
+    state.cart[key]={codice:codice, sett:state.settimana, qta:q, cont:cont||prev.cont||'T04', descrizione:a.descrizione, serie:a.serie, categoria:a.categoria, prezzo:pr};
   }
   salva(); aggiornaBarra();
 }
 
 function righe(){ return Object.keys(state.cart).map(function(k){ return state.cart[k]; }); }
+function prezzoPer(codice){
+  var cli=state.cliente.codice;
+  if(cli && window.PREZZI && window.PREZZI[cli] && window.PREZZI[cli][codice]!==undefined) return window.PREZZI[cli][codice];
+  return num(state.prezzo);
+}
 function totali(){
-  var r=righe(), cont=0, piante=0;
-  r.forEach(function(x){ cont+=x.qta; piante+=x.qta*(FORI[x.cont]||104); });
-  var p=num(state.prezzo);
-  return {n:r.length, cont:cont, piante:piante, valore:piante/1000*p};
+  var r=righe(), cont=0, piante=0, valore=0;
+  r.forEach(function(x){ var pl=x.qta*(FORI[x.cont]||104); cont+=x.qta; piante+=pl; valore+=pl*(x.prezzo!==undefined?x.prezzo:num(state.prezzo)); });
+  return {n:r.length, cont:cont, piante:piante, valore:valore};
 }
 function aggiornaBarra(){
   var wn=document.getElementById('weekNow'); if(wn) wn.textContent=state.settimana;
@@ -125,12 +131,14 @@ function apriOrdine(){
     r.forEach(function(x){ if(!perSett.has(x.sett)) perSett.set(x.sett,[]); perSett.get(x.sett).push(x); });
     var h='';
     perSett.forEach(function(arr,sett){
-      h += '<div class="sett-gruppo"><h4>Settimana '+esc(sett)+'</h4><table class="righe"><thead><tr><th>Codice</th><th>Varietà</th><th>Serie</th><th>Cont.</th><th class="num">Contenitori</th><th class="num">Piante</th><th class="num">Valore</th><th></th></tr></thead><tbody>';
+      h += '<div class="sett-gruppo"><h4>Settimana '+esc(sett)+'</h4><table class="righe"><thead><tr><th>Codice</th><th>Varietà</th><th>Serie</th><th>Cont.</th><th class="num">Contenitori</th><th class="num">Piante</th><th class="num">€/pianta</th><th class="num">Valore</th><th></th></tr></thead><tbody>';
       arr.forEach(function(x){
         var piante=x.qta*(FORI[x.cont]||104);
         h += '<tr><td>'+esc(x.codice)+'</td><td>'+esc(x.descrizione)+'</td><td style="color:var(--grigio)">'+esc(x.serie||'')+'</td><td>'+(x.cont==='A84'?'A84':'T04')+'</td>'+
           '<td class="num"><input type="number" min="0" style="width:70px;padding:5px;border:1px solid var(--bordo);border-radius:7px;text-align:center" value="'+x.qta+'" data-mod="'+esc(x.codice+'|'+x.sett)+'"></td>'+
-          '<td class="num">'+int(piante)+'</td><td class="num">'+euro(piante/1000*num(state.prezzo))+'</td>'+
+          '<td class="num">'+int(piante)+'</td>'+
+          '<td class="num"><input type="number" step="0.001" min="0" style="width:78px;padding:5px;border:1px solid var(--bordo);border-radius:7px;text-align:right" value="'+(x.prezzo!==undefined?x.prezzo:num(state.prezzo))+'" data-price="'+esc(x.codice+'|'+x.sett)+'"></td>'+
+          '<td class="num">'+euro(piante*(x.prezzo!==undefined?x.prezzo:num(state.prezzo)))+'</td>'+
           '<td><button class="btn-link" data-del="'+esc(x.codice+'|'+x.sett)+'" title="Rimuovi">✕</button></td></tr>';
       });
       h += '</tbody></table></div>';
@@ -140,10 +148,13 @@ function apriOrdine(){
     corpo.innerHTML=h;
   }
   var c=state.cliente;
-  $('#clCliente').value=c.codice||''; $('#clNome').value=c.nome||''; $('#clDest').value=c.destinatario||'';
-  $('#clInd').value=c.indirizzo||''; $('#clRef').value=c.referente||''; $('#clTel').value=c.telefono||'';
-  $('#clMail').value=c.email||''; $('#clNote').value=c.note||'';
-  $('#prezzo').value=state.prezzo||'0,23';
+  var setv=function(id,v){ var el=document.getElementById(id); if(el) el.value=v; };
+  setv('clCliente',c.codice||''); setv('clNome',c.nome||''); setv('clDest',c.destinatario||'');
+  setv('clInd',c.indirizzo||''); setv('clRef',c.referente||''); setv('clTel',c.telefono||'');
+  setv('clMail',c.email||''); setv('clNote',c.note||'');
+  setv('prezzo',state.prezzo||'0,23');
+  var cn=document.getElementById('cartCliente');
+  if(cn) cn.textContent = c.nome ? (c.nome + (c.codice?' · '+c.codice:'')) : 'Nessun cliente selezionato — clicca su “Cliente” in alto';
   $('#statoInvio').innerHTML=''; $('#btnMailto').style.display='none';
   $('#overlay').classList.add('on');
 }
@@ -310,6 +321,8 @@ function collegaEventi(){
   $('#overlay').addEventListener('click',function(e){ if(e.target.id==='overlay') chiudiOrdine(); });
   document.addEventListener('keydown',function(e){ if(e.key==='Escape') chiudiOrdine(); });
   $('#ordineCorpo').addEventListener('input',function(e){
+    var pr=e.target.getAttribute&&e.target.getAttribute('data-price');
+    if(pr){ var it=state.cart[pr]; if(it){ it.prezzo=num(e.target.value); salva(); aggiornaBarra(); } return; }
     var mod=e.target.dataset.mod; if(!mod) return;
     var it=state.cart[mod]; if(!it) return;
     var q=Math.floor(num(e.target.value));
@@ -327,10 +340,13 @@ function collegaEventi(){
     if(!confirm('Svuotare tutto l\'ordine?')) return;
     state.cart={}; salva(); aggiornaBarra(); aggiornaProdottiInput(); apriOrdine();
   });
-  $('#datiCliente').addEventListener('input',function(e){
+  var dc=document.getElementById('datiCliente');
+  if(dc) dc.addEventListener('input',function(e){
     var map={clCliente:'codice',clNome:'nome',clDest:'destinatario',clInd:'indirizzo',clRef:'referente',clTel:'telefono',clMail:'email',clNote:'note'};
     if(map[e.target.id]){ state.cliente[map[e.target.id]]=e.target.value; salva(); aggiornaTestata(); }
   });
+  var noteEl=document.getElementById('clNote');
+  if(noteEl) noteEl.addEventListener('input',function(e){ state.cliente.note=e.target.value; salva(); });
   $('#prezzo').addEventListener('input',function(e){ state.prezzo=e.target.value; salva(); });
   $('#btnMailto').addEventListener('click',function(){
     var s=encodeURIComponent(riepilogoTesto());

@@ -7,7 +7,7 @@
 <meta name="description" content="Portale ordini Red Fox Italia (Dümmen Orange) — stagione 2026/27">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
 
@@ -82,18 +82,11 @@
     <div class="corpo">
       <div id="ordineCorpo"></div>
 
-      <h3 style="margin:22px 0 6px;font-size:15px">2. Dati cliente</h3>
-      <div class="campi" id="datiCliente">
-        <div style="grid-column:1/-1;position:relative"><label for="clSearch" style="display:block">Cerca cliente<span id="clSearchHint" style="text-transform:none;font-weight:400;color:#9ca3af"> — inizia a digitare il nome o il codice</span></label><input id="clSearch" placeholder="Es. Verdeflor, Femia, 0302421…" autocomplete="off" style="margin-top:4px"><div id="clResults" class="cl-results"></div></div>
-        <label>Codice cliente<input id="clCliente" placeholder="es. 1234"></label>
-        <label>Ragione sociale *<input id="clNome" placeholder="Nome cliente"></label>
-        <label>Destinatario<input id="clDest" placeholder="Se diverso"></label>
-        <label>Indirizzo<input id="clInd" placeholder="Via, n°, CAP, città"></label>
-        <label>Referente<input id="clRef" placeholder="Persona di riferimento"></label>
-        <label>Telefono<input id="clTel" placeholder="Cellulare"></label>
-        <label>Email<input id="clMail" type="email" placeholder="email@cliente.it"></label>
-        <label>Prezzo per 1.000 + Lic. + Suppl.<input id="prezzo" value="0,23"></label>
+      <h3 style="margin:22px 0 6px;font-size:15px">Cliente</h3>
+      <div id="cartCliente" style="padding:10px 12px;background:#f7f8f7;border:1px solid var(--bordo);border-radius:10px;font-weight:600;font-size:14px">Nessun cliente selezionato</div>
+      <div class="campi" style="margin-top:10px">
         <label style="grid-column:1/-1">Note per l'ordine<input id="clNote" placeholder="es. consegna, omaggi, richieste particolari"></label>
+        <label>Prezzo di listino (€/pianta)<input id="prezzo" value="0,23"></label>
       </div>
       <div id="statoInvio"></div>
     </div>
@@ -109,7 +102,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="clienti.js?v=1"></script>
-<script src="data.js?v=15"></script>
-<script src="app.js?v=15"></script>
+<script src="prezzi.js?v=1"></script>
+<script src="data.js?v=16"></script>
+<script src="app.js?v=16"></script>
 </body>
 </html>
