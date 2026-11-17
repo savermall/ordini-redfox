@@ -234,17 +234,40 @@ function inviaOrdine(){
         'Ordine_'+(state.cliente.nome||'cliente').replace(/\W+/g,'_')+'.xlsx');
     }
   }catch(e){ console.warn('attach',e); }
-  fetch('https://formsubmit.co/ajax/'+EMAIL_ORDINI,{method:'POST',body:fd,headers:{Accept:'application/json'}})
-    .then(function(res){ if(!res.ok) throw new Error('HTTP '+res.status); return res.json().catch(function(){ return {}; }); })
-    .then(function(j){ if(j && (j.success===false || j.success==='false')) throw new Error(j.message||'invio rifiutato');
-      mostraStato('ok','Ordine inviato. Trovi riepilogo ed Excel in '+EMAIL_ORDINI+'.');
-      setTimeout(chiudiOrdine,1600);
-    })
-    .catch(function(e){
-      mostraStato('err','Invio automatico non riuscito ('+e.message+'). Scarica l\'Excel oppure usa il pulsante email.');
-      $('#btnMailto').style.display='inline-block';
-    })
-    .then(function(){ btn.disabled=false; btn.textContent='Invia ordine'; });
+  try{
+    var frame=document.getElementById('fsFrame');
+    if(!frame){ frame=document.createElement('iframe'); frame.name='fsFrame'; frame.id='fsFrame'; frame.style.display='none'; document.body.appendChild(frame); }
+    var f=document.getElementById('fsForm'); if(f) f.remove();
+    f=document.createElement('form');
+    f.id='fsForm'; f.method='POST'; f.action='https://formsubmit.co/'+EMAIL_ORDINI;
+    f.enctype='multipart/form-data'; f.target='fsFrame'; f.style.display='none';
+    var add=function(n,v){ var i=document.createElement('input'); i.type='hidden'; i.name=n; i.value=v; f.appendChild(i); };
+    add('_subject','Ordine Red Fox — '+state.cliente.nome+' — '+new Date().toLocaleDateString('it-IT'));
+    add('_captcha','false'); add('_template','table');
+    add('Cliente',(state.cliente.codice||'')+' '+state.cliente.nome);
+    add('Destinatario',state.cliente.destinatario||'-');
+    add('Riepilogo',riepilogoTesto());
+    add('Righe',String(t.n)); add('Contenitori',String(t.cont));
+    add('Piante',String(t.piante)); add('Valore',euro(t.valore));
+    if(window.XLSX){
+      var buf=XLSX.write(buildWorkbook(),{bookType:'xlsx',type:'array'});
+      var fi=document.createElement('input'); fi.type='file'; fi.name='allegato';
+      try{
+        var dt=new DataTransfer();
+        dt.items.add(new File([buf],'Ordine_'+(state.cliente.nome||'cliente').replace(/\W+/g,'_')+'.xlsx',{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+        fi.files=dt.files;
+      }catch(e){}
+      f.appendChild(fi);
+    }
+    document.body.appendChild(f);
+    f.submit();
+    mostraStato('ok','Ordine inviato a '+EMAIL_ORDINI+'. Prima volta? FormSubmit manda una mail di conferma: aprila e clicca il link di attivazione.');
+    setTimeout(chiudiOrdine,2500);
+  }catch(e){
+    mostraStato('err','Invio non riuscito ('+e.message+'). Scarica il file Excel oppure usa il pulsante email.');
+    $('#btnMailto').style.display='inline-block';
+  }
+  btn.disabled=false; btn.textContent='Invia ordine';
 }
 
 function aggiornaTestata(){
