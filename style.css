@@ -157,3 +157,13 @@ table.righe .num{text-align:right;font-variant-numeric:tabular-nums}
 .week.attiva:after{content:" ✓";font-weight:700}
 /* ---------- autocomplete clienti ---------- */
 #clSearch{font-weight:600}
+
+/* ---------- combobox clienti ---------- */
+.cl-results{position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid var(--bordo);border-radius:12px;box-shadow:0 16px 32px -16px rgba(16,24,40,.35);max-height:260px;overflow:auto;z-index:70;display:none}
+.cl-results.on{display:block}
+.cl-results button{display:flex;width:100%;gap:10px;align-items:baseline;text-align:left;border:0;background:#fff;padding:9px 12px;border-bottom:1px solid #f3f4f6;font-size:13.5px}
+.cl-results button:last-child{border-bottom:0}
+.cl-results button:hover,.cl-results button.sel{background:var(--verde-chiaro)}
+.cl-results .c{font-size:11.5px;color:var(--grigio);font-variant-numeric:tabular-nums;min-width:60px}
+.cl-results .n{font-weight:600}
+.cl-vuoto{padding:10px 12px;color:var(--grigio);font-size:13px}

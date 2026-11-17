@@ -344,20 +344,27 @@ function collegaEventi(){
 }
 
 function initClienti(){
-  var dl=document.getElementById('clientiList'); if(!dl||!window.CLIENTI) return;
-  dl.innerHTML = window.CLIENTI.map(function(c){ return '<option value="'+esc(c.nome)+'">'+esc(c.codice)+' · '+esc(c.nome)+'</option>'; }).join('');
-  var inp=document.getElementById('clSearch');
-  if(inp) inp.addEventListener('change',function(){
-    var v=inp.value.trim(); if(!v) return;
-    var hit=window.CLIENTI.filter(function(c){ return c.nome===v || c.codice===v; })[0];
-    if(!hit){ var q=v.toLowerCase(); hit=window.CLIENTI.filter(function(c){ return c.nome.toLowerCase().indexOf(q)>=0; })[0]; }
-    if(hit){
-      document.getElementById('clCliente').value=hit.codice;
-      document.getElementById('clCliente').dispatchEvent(new Event('input',{bubbles:true}));
-      document.getElementById('clNome').value=hit.nome;
-      document.getElementById('clNome').dispatchEvent(new Event('input',{bubbles:true}));
-    }
+  var inp=document.getElementById('clSearch'), box=document.getElementById('clResults');
+  if(!inp||!box||!window.CLIENTI) return;
+  function render(q){
+    var list=window.CLIENTI.slice();
+    if(q){ var k=q.toLowerCase(); list=list.filter(function(c){ return c.nome.toLowerCase().indexOf(k)>=0 || c.codice.indexOf(k)>=0; }); }
+    list=list.slice(0,40);
+    box.innerHTML = list.length
+      ? list.map(function(c){ return '<button type="button" data-code="'+esc(c.codice)+'" data-nome="'+esc(c.nome)+'"><span class="c">'+esc(c.codice)+'</span><span class="n">'+esc(c.nome)+'</span></button>'; }).join('')
+      : '<div class="cl-vuoto">Nessun cliente trovato</div>';
+    box.classList.add('on');
+  }
+  inp.addEventListener('focus',function(){ render(inp.value.trim()); });
+  inp.addEventListener('input',function(){ render(inp.value.trim()); });
+  box.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-code]'); if(!b) return;
+    var cc=document.getElementById('clCliente'), cn=document.getElementById('clNome');
+    cc.value=b.dataset.code; cc.dispatchEvent(new Event('input',{bubbles:true}));
+    cn.value=b.dataset.nome; cn.dispatchEvent(new Event('input',{bubbles:true}));
+    inp.value=b.dataset.nome; box.classList.remove('on');
   });
+  document.addEventListener('click',function(e){ if(!box.contains(e.target) && e.target!==inp) box.classList.remove('on'); });
 }
 function init(){
   $('#stagione').textContent='Stagione '+C.stagione;
