@@ -273,7 +273,7 @@ function inviaOrdine(){
 
 function aggiornaTestata(){
   var c=state.cliente;
-  $('#hCliente').textContent=c.nome||'Nessun cliente impostato';
+  $('#hCliente').textContent=(c.nome||'Nessun cliente impostato')+(c.codice?' ('+c.codice+')':'')+' ▾';
   $('#hCliente').className='cliente-val'+(c.nome?'':' vuoto');
   $('#hCliente2').textContent=c.codice?('Cod. '+c.codice):'';
 }
@@ -366,10 +366,39 @@ function initClienti(){
   });
   document.addEventListener('click',function(e){ if(!box.contains(e.target) && e.target!==inp) box.classList.remove('on'); });
 }
+function initPopCliente(){
+  var btn=document.getElementById('hCliente'), pop=document.getElementById('clPop');
+  var inp=document.getElementById('clPopSearch'), list=document.getElementById('clPopList');
+  if(!btn||!pop||!inp||!list) return;
+  function render(q){
+    var l=window.CLIENTI||[];
+    if(q){ var k=q.toLowerCase(); l=l.filter(function(c){ return c.nome.toLowerCase().indexOf(k)>=0 || c.codice.indexOf(k)>=0; }); }
+    list.innerHTML = l.length
+      ? l.slice(0,60).map(function(c){ return '<button type="button" data-code="'+esc(c.codice)+'" data-nome="'+esc(c.nome)+'"><span class="c">'+esc(c.codice)+'</span><span class="n">'+esc(c.nome)+'</span></button>'; }).join('')
+      : '<div class="cl-vuoto">Nessun cliente</div>';
+  }
+  btn.addEventListener('click',function(e){
+    e.stopPropagation();
+    pop.classList.toggle('on');
+    if(pop.classList.contains('on')){ inp.value=''; render(''); inp.focus(); }
+  });
+  inp.addEventListener('input',function(){ render(inp.value.trim()); });
+  list.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-code]'); if(!b) return;
+    state.cliente.codice=b.dataset.code; state.cliente.nome=b.dataset.nome; salva();
+    aggiornaTestata();
+    var cc=document.getElementById('clCliente'), cn=document.getElementById('clNome');
+    if(cc){ cc.value=b.dataset.code; }
+    if(cn){ cn.value=b.dataset.nome; }
+    pop.classList.remove('on');
+  });
+  document.addEventListener('click',function(e){ if(!pop.contains(e.target) && e.target!==btn) pop.classList.remove('on'); });
+}
+
 function init(){
   $('#stagione').textContent='Stagione '+C.stagione;
   $('#agente').textContent=C.agente;
-  renderCategorie(); renderSettimane(); renderProdotti(); aggiornaBarra(); aggiornaTestata(); collegaEventi(); initClienti();
+  renderCategorie(); renderSettimane(); renderProdotti(); aggiornaBarra(); aggiornaTestata(); collegaEventi(); initClienti(); initPopCliente();
 }
 document.addEventListener('DOMContentLoaded',init);
 })();

@@ -7,7 +7,7 @@
 <meta name="description" content="Portale ordini Red Fox Italia (Dümmen Orange) — stagione 2026/27">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=14">
+<link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
 
@@ -21,9 +21,9 @@
 </header>
 
 <section class="cliente-box">
-  <div class="cliente-in">
+  <div class="cliente-in" style="position:relative">
     <span class="cliente-tit">Cliente</span>
-    <span class="cliente-val vuoto" id="hCliente">Nessun cliente impostato</span>
+    <button class="cliente-val vuoto" id="hCliente" style="border:0;background:none;cursor:pointer;padding:0;font:inherit">Nessun cliente impostato ▾</button><div class="cl-pop" id="clPop"><input id="clPopSearch" placeholder="Digita il nome del cliente…" autocomplete="off"><div id="clPopList" class="cl-results on"></div></div>
     <span class="agente" id="hCliente2"></span>
     <div class="topbar-spacer"></div>
     <button class="btn-link" onclick="document.getElementById('btnOrdine').click()">Imposta cliente e dati ordine →</button>
@@ -109,7 +109,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="clienti.js?v=1"></script>
-<script src="data.js?v=14"></script>
-<script src="app.js?v=14"></script>
+<script src="data.js?v=15"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>

@@ -167,3 +167,12 @@ table.righe .num{text-align:right;font-variant-numeric:tabular-nums}
 .cl-results .c{font-size:11.5px;color:var(--grigio);font-variant-numeric:tabular-nums;min-width:60px}
 .cl-results .n{font-weight:600}
 .cl-vuoto{padding:10px 12px;color:var(--grigio);font-size:13px}
+
+/* ---------- popover cliente in testata ---------- */
+.cliente-val{cursor:pointer;border-bottom:1px dashed #c7c9cc}
+.cliente-val:hover{color:var(--verde)}
+.cl-pop{position:absolute;top:100%;left:0;width:min(420px,92vw);background:#fff;border:1px solid var(--bordo);border-radius:14px;box-shadow:0 20px 40px -20px rgba(16,24,40,.45);padding:10px;z-index:80;display:none}
+.cl-pop.on{display:block}
+.cl-pop input{width:100%;padding:10px 12px;border:1px solid var(--bordo);border-radius:10px}
+.cl-pop input:focus{outline:2px solid var(--verde-chiaro);border-color:var(--verde)}
+.cl-pop .cl-results{position:static;border:0;box-shadow:none;max-height:300px;margin-top:6px}
