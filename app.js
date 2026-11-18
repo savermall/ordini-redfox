@@ -73,7 +73,7 @@ function renderProdotti(){
           '<span class="cod">'+esc(a.codice)+'</span></div>'+
         '<div class="body"><div><div class="nome">'+esc(a.descrizione)+'</div><div class="serie">'+esc(a.categoria)+'</div></div>'+
         '<div class="riga-q"><input class="qta '+(inCart?'attiva':'')+'" type="number" min="0" step="1" inputmode="numeric" placeholder="0" value="'+(inCart?inCart.qta:'')+'" aria-label="Contenitori '+esc(a.descrizione)+'">'+
-        '<select class="cont" aria-label="Contenitore"><option value="T04"'+(!inCart||inCart.cont!=='A84'?' selected':'')+'>T04 (104)</option><option value="A84"'+(inCart&&inCart.cont==='A84'?' selected':'')+'>A84 (84)</option></select>'+
+         (a.accessorio ? '<span style="font-size:12px;color:var(--grigio);padding:0 6px">pz</span>' : '<select class="cont" aria-label="Contenitore"><option value="T04"'+(!inCart||inCart.cont!=='A84'?' selected':'')+'>T04 (104)</option><option value="A84"'+(inCart&&inCart.cont==='A84'?' selected':'')+'>A84 (84)</option></select>') +
         '</div></div></article>';
     });
     html += '</div>';
@@ -96,8 +96,8 @@ function setRiga(codice, qta, cont){
   if(!q){ delete state.cart[key]; }
   else { var prev=state.cart[key]||{};
     var pr = prev.prezzo;
-    if(pr===undefined){ pr = prezzoPer(codice); }
-    state.cart[key]={codice:codice, sett:state.settimana, qta:q, cont:cont||prev.cont||'T04', descrizione:a.descrizione, serie:a.serie, categoria:a.categoria, prezzo:pr};
+    if(pr===undefined){ pr = a.accessorio && a.costo!=null ? a.costo : prezzoPer(codice); }
+    state.cart[key]={codice:codice, sett:state.settimana, qta:q, cont:cont||prev.cont||'T04', descrizione:a.descrizione, serie:a.serie, categoria:a.categoria, prezzo:pr, accessorio:!!a.accessorio};
   }
   salva(); aggiornaBarra();
 }
@@ -110,7 +110,7 @@ function prezzoPer(codice){
 }
 function totali(){
   var r=righe(), cont=0, piante=0, valore=0;
-  r.forEach(function(x){ var pl=x.qta*(FORI[x.cont]||104); cont+=x.qta; piante+=pl; valore+=pl*(x.prezzo!==undefined?x.prezzo:num(state.prezzo)); });
+  r.forEach(function(x){ var pl=x.accessorio?x.qta:x.qta*(FORI[x.cont]||104); cont+=x.qta; piante+=pl; valore+=pl*(x.prezzo!==undefined?x.prezzo:num(state.prezzo)); });
   return {n:r.length, cont:cont, piante:piante, valore:valore};
 }
 function aggiornaBarra(){
@@ -133,7 +133,7 @@ function apriOrdine(){
     perSett.forEach(function(arr,sett){
       h += '<div class="sett-gruppo"><h4>Settimana '+esc(sett)+'</h4><table class="righe"><thead><tr><th>Codice</th><th>Varietà</th><th>Serie</th><th>Cont.</th><th class="num">Contenitori</th><th class="num">Piante</th><th class="num">€/pianta</th><th class="num">Valore</th><th></th></tr></thead><tbody>';
       arr.forEach(function(x){
-        var piante=x.qta*(FORI[x.cont]||104);
+        var piante=x.accessorio?x.qta:x.qta*(FORI[x.cont]||104);
         h += '<tr><td>'+esc(x.codice)+'</td><td>'+esc(x.descrizione)+'</td><td style="color:var(--grigio)">'+esc(x.serie||'')+'</td><td>'+(x.cont==='A84'?'A84':'T04')+'</td>'+
           '<td class="num"><input type="number" min="0" style="width:70px;padding:5px;border:1px solid var(--bordo);border-radius:7px;text-align:center" value="'+x.qta+'" data-mod="'+esc(x.codice+'|'+x.sett)+'"></td>'+
           '<td class="num">'+int(piante)+'</td>'+
@@ -164,8 +164,9 @@ function buildRows(){
   var r=righe().sort(function(a,b){ return a.sett.localeCompare(b.sett); });
   var rows=[['SETT','CODICE','VARIETÀ','SERIE','CATEGORIA','CONTENITORE','CONTENITORI','PIANTE','PREZZO/1000','VALORE']];
   r.forEach(function(x){
-    var piante=x.qta*(FORI[x.cont]||104);
-    rows.push([x.sett,x.codice,x.descrizione,x.serie||'',x.categoria,x.cont,x.qta,piante,num(state.prezzo),Number((piante/1000*num(state.prezzo)).toFixed(2))]);
+    var piante=x.accessorio?x.qta:x.qta*(FORI[x.cont]||104);
+    var pu=x.prezzo!==undefined?x.prezzo:num(state.prezzo);
+    rows.push([x.sett,x.codice,x.descrizione,x.serie||'',x.categoria,x.accessorio?'pz':x.cont,x.qta,piante,pu,Number((piante*pu).toFixed(2))]);
   });
   var t=totali();
   rows.push([]);
@@ -212,7 +213,7 @@ function riepilogoTesto(){
   var cur='';
   r.forEach(function(x){
     if(x.sett!==cur){ cur=x.sett; s+='\nSETTIMANA '+cur+'\n'; }
-    s+='  '+x.codice+'  '+x.descrizione+'  —  '+x.qta+' x '+x.cont+' ('+(x.qta*(FORI[x.cont]||104))+' piante)\n';
+    s+='  '+x.codice+'  '+x.descrizione+'  —  '+x.qta+(x.accessorio?' pz':' x '+x.cont+' ('+(x.qta*(FORI[x.cont]||104))+' piante)')+'\n';
   });
   s+='\nTOTALE: '+t.n+' righe · '+t.cont+' contenitori · '+int(t.piante)+' piante · '+euro(t.valore)+'\n';
   s+='Prezzo per 1.000 + Lic. + Suppl.: '+state.prezzo+'\n';
