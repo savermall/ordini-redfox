@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Red Fox — Pannello</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=26">
+<style>
+ body{background:#f7f8f7}
+ .adm{max-width:1100px;margin:0 auto;padding:20px}
+ .adm h1{font-size:22px;margin:0 0 4px}
+ .adm p.sub{color:var(--grigio);font-size:13px;margin:0 0 18px}
+ .adm barra{display:block}
+ .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+ .toolbar input[type=search]{flex:1;min-width:220px;padding:10px 12px;border:1px solid var(--bordo);border-radius:10px}
+ table.adm-t{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--bordo);border-radius:12px;overflow:hidden;font-size:13.5px}
+ table.adm-t th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--grigio);padding:9px 10px;border-bottom:1px solid var(--bordo);background:#fbfbfb}
+ table.adm-t td{padding:7px 10px;border-bottom:1px solid #f3f4f6;vertical-align:middle}
+ table.adm-t tr:last-child td{border-bottom:0}
+ table.adm-t input[type=number]{width:88px;padding:6px;border:1px solid var(--bordo);border-radius:8px;text-align:right}
+ .pill{font-size:11px;background:var(--verde-chiaro);color:var(--verde-scuro);border-radius:999px;padding:2px 8px;font-weight:600}
+ .pill.off{background:#fdecea;color:#8c2318}
+</style>
+</head>
+<body>
+<div class="adm">
+  <h1>Pannello Red Fox</h1>
+  <p class="sub">Qui modifichi i prezzi di listino (€/pianta) e la disponibilità. Le modifiche restano salvate nel tuo browser; con <b>Scarica modifiche</b> esporti un file da inviarmi e le pubblico.</p>
+
+  <div class="toolbar">
+    <input id="admCerca" type="search" placeholder="Cerca varietà o codice…">
+    <select id="admCat" class="cont" style="padding:9px;border:1px solid var(--bordo);border-radius:10px;max-width:260px"></select>
+    <button class="btn ghost" id="admEsporta">Scarica modifiche</button>
+    <button class="btn primario" id="admSalva">Salva</button>
+    <button class="btn pericolo" id="admReset">Azzera modifiche</button>
+  </div>
+
+  <div id="admStato" class="avviso info" style="margin-bottom:12px;display:none"></div>
+
+  <table class="adm-t">
+    <thead><tr><th style="width:90px">Codice</th><th>Varietà</th><th>Categoria</th><th style="width:120px">€/pianta</th><th style="width:120px">Disponibile</th></tr></thead>
+    <tbody id="admBody"></tbody>
+  </table>
+</div>
+
+<script src="data.js?v=26"></script>
+<script>
+(function(){
+  var LS='redfox_admin_v1';
+  var mods = {};
+  try{ mods = JSON.parse(localStorage.getItem(LS)||'{}'); }catch(e){}
+  var C = window.CATALOGO;
+  var body=document.getElementById('admBody'), sel=document.getElementById('admCat'), q=document.getElementById('admCerca');
+
+  sel.innerHTML = '<option value="">Tutte le categorie</option>' + C.categorie.map(function(c){ return '<option>'+c.nome+'</option>'; }).join('');
+
+  function render(){
+    var cat=sel.value, k=q.value.trim().toLowerCase();
+    var list=C.articoli.filter(function(a){
+      if(cat && a.categoria!==cat) return false;
+      if(k && (a.codice+' '+a.descrizione).toLowerCase().indexOf(k)<0) return false;
+      return true;
+    }).slice(0,400);
+    body.innerHTML = list.map(function(a){
+      var m = mods[a.codice]||{};
+      var pr = m.prezzo!==undefined ? m.prezzo : (a.costo!=null?a.costo:'');
+      var dis = m.dispo===undefined ? true : m.dispo;
+      return '<tr><td>'+a.codice+'</td><td>'+a.descrizione+'</td><td style="color:var(--grigio)">'+a.categoria+'</td>'+
+        '<td><input type="number" step="0.001" min="0" data-code="'+a.codice+'" data-k="prezzo" value="'+pr+'"></td>'+
+        '<td><button class="pill '+(dis?'':'off')+'" data-toggle="'+a.codice+'">'+(dis?'Sì':'No')+'</button></td></tr>';
+    }).join('');
+  }
+
+  body.addEventListener('input', function(e){
+    var c=e.target.getAttribute('data-code'); if(!c) return;
+    mods[c]=mods[c]||{}; mods[c].prezzo=parseFloat(e.target.value); save();
+  });
+  body.addEventListener('click', function(e){
+    var c=e.target.getAttribute('data-toggle'); if(!c) return;
+    mods[c]=mods[c]||{}; mods[c].dispo = !(mods[c].dispo===undefined?true:mods[c].dispo);
+    save(); render();
+  });
+  function save(){ localStorage.setItem(LS, JSON.stringify(mods)); mostra('Modifiche salvate nel browser ('+Object.keys(mods).length+' articoli).'); }
+  function mostra(t){ var s=document.getElementById('admStato'); s.textContent=t; s.style.display='block'; clearTimeout(window.__t); window.__t=setTimeout(function(){ s.style.display='none'; },4000); }
+
+  document.getElementById('admSalva').onclick=function(){ save(); };
+  document.getElementById('admReset').onclick=function(){ if(!confirm('Azzerare tutte le modifiche?')) return; mods={}; localStorage.removeItem(LS); render(); mostra('Modifiche azzerate.'); };
+  document.getElementById('admEsporta').onclick=function(){
+    var blob=new Blob([JSON.stringify({prezzi:mods,generato:new Date().toISOString()},null,1)],{type:'application/json'});
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='redfox-modifiche.json'; a.click();
+    mostra('File scaricato: inviamelo e pubblico le modifiche.');
+  };
+  sel.onchange=render; q.oninput=render;
+  render();
+})();
+</script>
+</body>
+</html>
